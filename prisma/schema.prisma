@@ -1,0 +1,90 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+
+datasource db {
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "scheme.md"
+}
+
+model Horse {
+  id               String             @id
+  birth            DateTime           @db.Date
+  name             String             @unique
+  gender           String
+  HorseRecord      HorseRecord[]
+  Race_DetailHorse Race_DetailHorse[]
+}
+
+model HorseRecord {
+  horseId    String @id
+  horse      Horse  @relation(fields: [horseId], references: [id])
+  year       Int    @db.Year
+  firstrank  Int    @db.UnsignedTinyInt
+  secondrank Int    @db.UnsignedTinyInt
+  thirdrank  Int    @db.UnsignedTinyInt
+  matches    Int    @db.UnsignedTinyInt
+}
+
+model Jockey {
+  id               String             @id
+  birth            DateTime           @db.Date
+  name             String             @unique
+  JockeyRecord     JockeyRecord[]
+  Race_DetailHorse Race_DetailHorse[]
+}
+
+model JockeyRecord {
+  jockeyId   String @id
+  jockey     Jockey @relation(fields: [jockeyId], references: [id])
+  year       Int    @db.Year
+  firstrank  Int    @db.UnsignedTinyInt
+  secondrank Int    @db.UnsignedTinyInt
+  thirdrank  Int    @db.UnsignedTinyInt
+  matches    Int    @db.UnsignedMediumInt
+  jushoMatch Int    @db.UnsignedMediumInt
+  jushoWin   Int    @db.UnsignedSmallInt
+}
+
+model Race {
+  id               String             @id
+  startDate        DateTime           @db.Date
+  name             String
+  groundKind       String
+  distance         Int                @db.UnsignedSmallInt
+  weather          String
+  baba             String
+  course           String
+  requirement      String
+  horseCount       Int                @db.UnsignedTinyInt
+  winPrize         Int                @db.UnsignedSmallInt
+  secondPrize      Int                @db.UnsignedSmallInt
+  thirdPrize       Int                @db.UnsignedSmallInt
+  fourthPrize      Int                @db.UnsignedSmallInt
+  fifthPrize       Int                @db.UnsignedSmallInt
+  Race_DetailHorse Race_DetailHorse[]
+}
+
+model Race_DetailHorse {
+  race     Race   @relation(fields: [raceId], references: [id])
+  raceId   String
+  waku     Int    @db.UnsignedTinyInt
+  umaban   Int    @db.UnsignedTinyInt
+  horse    Horse  @relation(fields: [horseId], references: [id])
+  horseId  String
+  weight   Int    @db.UnsignedSmallInt
+  jockey   Jockey @relation(fields: [jockeyId], references: [id])
+  jockeyId String
+  // TODO: きゅうしゃ
+  odds     Float  @db.Double
+  favorite Int    @db.UnsignedTinyInt
+
+  @@id([raceId, horseId])
+}
