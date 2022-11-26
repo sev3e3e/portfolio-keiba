@@ -19,7 +19,7 @@ import { BsCloudFill } from "react-icons/bs";
 import styles from "../styles/Home.module.css";
 import { compareAsc, format } from "date-fns";
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
     const res = await fetch(`http://${process.env.DEPLOY_URL}/api/races/today`);
     const racedata = await res.json();
 
@@ -27,6 +27,19 @@ export async function getStaticProps() {
 }
 
 export default function Home({ racedata }: { racedata: Race[] }) {
+    // 手動で...
+    const tokyoRaces = racedata.filter((item) => {
+        return item.course == "東京";
+    });
+
+    const oosakaRaces = racedata.filter((item) => {
+        return item.course == "大阪";
+    });
+
+    const tyukyoRaces = racedata.filter((item) => {
+        return item.course == "中京";
+    });
+
     return (
         <Container
             css={{
@@ -59,8 +72,121 @@ export default function Home({ racedata }: { racedata: Race[] }) {
                     Today's Race
                 </Text>
 
-                <Grid.Container gap={2}>
-                    {["東京", "大阪", "中京"].map((course) => (
+                <Row>
+                    <RaceContainer course="東京">
+                        <Grid.Container alignItems="stretch">
+                            {tokyoRaces
+                                .map((race) => (
+                                    <Container
+                                        css={{
+                                            mb: "$2",
+                                            mt: "$2",
+                                            w: "100%",
+                                        }}
+                                        key={`${race.name}`}
+                                    >
+                                        <RaceButton
+                                            round={race.round}
+                                            name={race.name}
+                                            groundKind={race.groundKind}
+                                            numberEntry={race.horseCount}
+                                            raceLength={race.distance}
+                                            startTime={race.startDate}
+                                            id={race.id}
+                                        />
+                                    </Container>
+                                ))
+                                .sort((a, b) => {
+                                    return a
+                                        .key!.toString()
+                                        .localeCompare(
+                                            b.key!.toString(),
+                                            undefined,
+                                            {
+                                                numeric: true,
+                                                sensitivity: "base",
+                                            }
+                                        );
+                                })}
+                        </Grid.Container>
+                    </RaceContainer>
+                    <Spacer x={1.5} />
+                    <RaceContainer course="大阪">
+                        <Grid.Container alignItems="stretch">
+                            {oosakaRaces
+                                .map((race) => (
+                                    <Container
+                                        css={{
+                                            mb: "$2",
+                                            mt: "$2",
+                                            w: "100%",
+                                        }}
+                                        key={`${race.name}`}
+                                    >
+                                        <RaceButton
+                                            round={race.round}
+                                            name={race.name}
+                                            groundKind={race.groundKind}
+                                            numberEntry={race.horseCount}
+                                            raceLength={race.distance}
+                                            startTime={race.startDate}
+                                            id={race.id}
+                                        />
+                                    </Container>
+                                ))
+                                .sort((a, b) => {
+                                    return a
+                                        .key!.toString()
+                                        .localeCompare(
+                                            b.key!.toString(),
+                                            undefined,
+                                            {
+                                                numeric: true,
+                                                sensitivity: "base",
+                                            }
+                                        );
+                                })}
+                        </Grid.Container>
+                    </RaceContainer>
+                    <Spacer x={1.5} />
+                    <RaceContainer course="中京">
+                        <Grid.Container alignItems="stretch">
+                            {tyukyoRaces
+                                .map((race) => (
+                                    <Container
+                                        css={{
+                                            mb: "$2",
+                                            mt: "$2",
+                                            w: "100%",
+                                        }}
+                                        key={`${race.name}`}
+                                    >
+                                        <RaceButton
+                                            round={race.round}
+                                            name={race.name}
+                                            groundKind={race.groundKind}
+                                            numberEntry={race.horseCount}
+                                            raceLength={race.distance}
+                                            startTime={race.startDate}
+                                            id={race.id}
+                                        />
+                                    </Container>
+                                ))
+                                .sort((a, b) => {
+                                    return a
+                                        .key!.toString()
+                                        .localeCompare(
+                                            b.key!.toString(),
+                                            undefined,
+                                            {
+                                                numeric: true,
+                                                sensitivity: "base",
+                                            }
+                                        );
+                                })}
+                        </Grid.Container>
+                    </RaceContainer>
+                    {/* {["東京", "大阪", "中京"].map((course) => (
                         <Grid xs={4}>
                             <Card>
                                 <Card.Header
@@ -140,8 +266,8 @@ export default function Home({ racedata }: { racedata: Race[] }) {
                                 </Card.Body>
                             </Card>
                         </Grid>
-                    ))}
-                </Grid.Container>
+                    ))} */}
+                </Row>
                 <div className={styles.grid}></div>
             </main>
 
@@ -165,6 +291,66 @@ export default function Home({ racedata }: { racedata: Race[] }) {
         </Container>
     );
 }
+
+const RaceContainer = ({
+    children,
+    course,
+}: {
+    children: JSX.Element;
+    course: string;
+}) => {
+    return (
+        <Card>
+            <Card.Header
+                css={{
+                    justifyContent: "center",
+                }}
+            >
+                <Col>
+                    <Row
+                        css={{
+                            alignItems: "flex-end",
+                            justifyContent: "center",
+                        }}
+                    >
+                        <Text size={"small"}>5回</Text>
+                        <Spacer x={0.3} />
+                        <Text size={"$xl"}>{course}</Text>
+                        <Spacer x={0.3} />
+                        <Text size={"small"}>6日目</Text>
+                    </Row>
+                    <Row
+                        css={{
+                            alignItems: "flex-end",
+                            justifyContent: "center",
+                        }}
+                    >
+                        <Text size={"$sm"}>天候:</Text>
+                        <Spacer x={0.3} />
+                        <BsCloudFill size={"2.1em"} />
+                        <Spacer x={0.5} />
+                        <Text size={"$sm"}>芝:</Text>
+                        <Spacer x={0.3} />
+                        <Text size={"$xl"}>良</Text>
+                        <Spacer x={0.5} />
+                        <Text size={"$sm"}>ダ:</Text>
+                        <Spacer x={0.3} />
+                        <Text size={"$xl"}>良</Text>
+                    </Row>
+                </Col>
+            </Card.Header>
+            <Card.Divider />
+            <Card.Body
+                css={{
+                    paddingLeft: "$0",
+                    paddingRight: "$0",
+                }}
+            >
+                <Grid.Container alignItems="stretch">{children}</Grid.Container>
+            </Card.Body>
+        </Card>
+    );
+};
 
 export const RaceButton = ({
     round,

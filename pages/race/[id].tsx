@@ -21,7 +21,7 @@ import { TableMarkItem } from "../../components/table/mark";
 import { GetServerSideProps } from "next";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth/next";
-import { getRaces } from "../../database/queries/races";
+import { getRace } from "../../database/queries/race";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { id: raceId } = context.query;
@@ -43,7 +43,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     const userId = session?.user?.id;
 
-    const res_race = await getRaces(raceId, userId ? userId : undefined);
+    const res_race = await getRace(raceId, userId ? userId : undefined);
 
     return { props: { res_race } };
 };
