@@ -23,7 +23,7 @@ import { useState } from "react";
 export const NavBarUserItem = () => {
     const { data: session, status } = useSession();
     const [isSelectedShowUser, SetIsSelectedShowUser] = useState(false);
-    if (status === "unauthenticated") {
+    if (status != "authenticated") {
         return (
             <Button auto flat as={Link} href="/api/auth/signin/google">
                 Sign in
@@ -92,8 +92,17 @@ export default function App({
     return (
         <SessionProvider session={session}>
             <NextUIProvider>
-                <Navbar isBordered variant="sticky">
-                    <Navbar.Brand>Portfolio-netkeiba</Navbar.Brand>
+                <Navbar
+                    variant="sticky"
+                    isBordered={true}
+                    maxWidth={"fluid"}
+                    css={{
+                        zIndex: 999,
+                    }}
+                >
+                    <Navbar.Brand>
+                        <Text size={"$2xl"}>Portfolio-netkeiba</Text>
+                    </Navbar.Brand>
                     <Navbar.Content>
                         <Navbar.Item>
                             <NavBarUserItem />
