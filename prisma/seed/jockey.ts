@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 export const jockey = async () => {
     await prisma.jockey.createMany({
-        data: Array(12 * 3)
+        data: Array(36 * 15)
             .fill(0)
             .map((v, i) => ({
                 id: "testid" + (i + 1).toString(),
@@ -16,7 +16,7 @@ export const jockey = async () => {
 
 export const jockeyRecord = async () => {
     await prisma.jockeyRecord.createMany({
-        data: Array(12 * 3)
+        data: Array(36 * 15)
             .fill(0)
             .map((v, i) => ({
                 jockeyId: "testid" + (i + 1).toString(),
