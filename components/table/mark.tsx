@@ -34,7 +34,7 @@ export const TableMarkItem = ({
                     <Row>
                         <Button
                             auto
-                            onClick={() => {
+                            onPress={() => {
                                 setMark("◎");
                             }}
                         >
@@ -42,7 +42,7 @@ export const TableMarkItem = ({
                         </Button>
                         <Button
                             auto
-                            onClick={() => {
+                            onPress={() => {
                                 setMark("○");
                             }}
                         >
@@ -50,7 +50,7 @@ export const TableMarkItem = ({
                         </Button>
                         <Button
                             auto
-                            onClick={() => {
+                            onPress={() => {
                                 setMark("▲");
                             }}
                         >
@@ -58,7 +58,7 @@ export const TableMarkItem = ({
                         </Button>
                         <Button
                             auto
-                            onClick={() => {
+                            onPress={() => {
                                 setMark("△");
                             }}
                         >
@@ -66,7 +66,7 @@ export const TableMarkItem = ({
                         </Button>
                         <Button
                             auto
-                            onClick={() => {
+                            onPress={() => {
                                 setMark("☆");
                             }}
                         >
@@ -74,7 +74,7 @@ export const TableMarkItem = ({
                         </Button>
                         <Button
                             auto
-                            onClick={() => {
+                            onPress={() => {
                                 setMark("✓");
                             }}
                         >
@@ -82,7 +82,7 @@ export const TableMarkItem = ({
                         </Button>
                         <Button
                             auto
-                            onClick={() => {
+                            onPress={() => {
                                 setMark("--");
                             }}
                         >
