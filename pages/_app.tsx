@@ -74,7 +74,7 @@ export const NavBarUserItem = () => {
                     color={"error"}
                     auto
                     shadow
-                    onClick={() => {
+                    onPress={() => {
                         signOut();
                     }}
                 >

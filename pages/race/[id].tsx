@@ -233,7 +233,7 @@ const RacePage = ({ res_race: racedata }: { res_race: Race }) => {
                                                 race={racedata}
                                                 horse={item.horse}
                                                 mark={
-                                                    item.TableMark[0]
+                                                    item.TableMark
                                                         ? item.TableMark[0].mark
                                                         : "--"
                                                 }
