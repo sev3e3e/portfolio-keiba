@@ -1,19 +1,9 @@
-import { Button, Grid, Modal, Popover, Row, Text } from "@nextui-org/react";
-import { Horse, Jockey, Race, TableMark } from "@prisma/client";
+import { Button, Popover, Row } from "@nextui-org/react";
+import { Horse, Race } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import React from "react";
-import { useState, use, cache } from "react";
-
-// const getMark = cache(async (horse, race, session) => {
-//     const res = await fetch(
-//         `/api/tableMark?horseId=${horse.id}&raceId=${race.id}&userId=${session.user?.id}`
-//     );
-
-//     console.log("noarmlllly");
-//     console.log(await res.json());
-//     return res.json();
-// });
+import { useState } from "react";
 
 export const TableMarkItem = ({
     race,

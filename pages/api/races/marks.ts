@@ -17,8 +17,6 @@ export default async function handler(
     }
 
     if (!session) {
-        console.log("kwddkwdw");
-        console.log(session);
         res.status(401).json({ message: "You must be logged in." });
         return;
     }
