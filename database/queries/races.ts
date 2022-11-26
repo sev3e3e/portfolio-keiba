@@ -1,26 +1,15 @@
-import { Race } from "@prisma/client";
-import type { NextApiRequest, NextApiResponse } from "next";
-import { unstable_getServerSession } from "next-auth";
+import { Race } from ".prisma/client";
+import { prisma } from "../db";
 
-import { prisma } from "../../../database/db";
-import { authOptions } from "../auth/[...nextauth]";
-
-export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse<Race>
-) {
-    const { id } = req.query;
-    const session = await unstable_getServerSession(req, res, authOptions);
-
-    if (Array.isArray(id) || !id) {
-        res.status(404);
-        return;
-    }
-
-    if (session) {
+export const getRaces = async (
+    raceId: string,
+    userId?: string
+): Promise<Race> => {
+    console.log("getrace called");
+    if (userId) {
         const races = await prisma.race.findUnique({
             where: {
-                id: id,
+                id: raceId,
             },
             include: {
                 Race_DetailHorse: {
@@ -37,8 +26,8 @@ export default async function handler(
                         },
                         TableMark: {
                             where: {
-                                userId: session.user?.id,
-                                raceId: id,
+                                userId: userId,
+                                raceId: raceId,
                             },
 
                             select: {
@@ -49,17 +38,11 @@ export default async function handler(
                 },
             },
         });
-
-        if (!races) {
-            res.status(404);
-            return;
-        }
-
-        res.status(200).json(races);
+        return JSON.parse(JSON.stringify(races));
     } else {
         const races = await prisma.race.findUnique({
             where: {
-                id: id,
+                id: raceId,
             },
             include: {
                 Race_DetailHorse: {
@@ -78,12 +61,6 @@ export default async function handler(
                 },
             },
         });
-
-        if (!races) {
-            res.status(404);
-            return;
-        }
-
-        res.status(200).json(races);
+        return JSON.parse(JSON.stringify(races));
     }
-}
+};

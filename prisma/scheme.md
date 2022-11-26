@@ -97,6 +97,11 @@ erDiagram
     }
   
 
+  TableMark {
+    String mark  
+    }
+  
+
   VerificationToken {
     String identifier  
     String token  
@@ -110,4 +115,6 @@ erDiagram
     Race_DetailHorse o{--|| Jockey : "jockey"
     Account o{--|| User : "user"
     Session o{--|| User : "user"
+    TableMark o{--|| User : "user"
+    TableMark o{--|| Race_DetailHorse : "horseDetail"
 ```

@@ -25,25 +25,71 @@ import { HorseResult } from "../../components/table/horseResult";
 import { compareAsc, format } from "date-fns";
 import React from "react";
 import { TableMarkItem } from "../../components/table/mark";
+import { GetServerSideProps } from "next";
+import { authOptions } from "../api/auth/[...nextauth]";
+import { unstable_getServerSession } from "next-auth/next";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
+import { getMarks } from "../../database/queries/marks";
+import { getRaces } from "../../database/queries/races";
 
-export async function getStaticPaths() {
-    const res = await fetch(`http://${process.env.DEPLOY_URL}/api/races`);
-    const races = await res.json();
-    const paths = races.map((race: Race) => `/race/${race.id}`);
-    // console.log(paths);
+// export async function getStaticPaths() {
+//     const res = await fetch(`http://${process.env.DEPLOY_URL}/api/races`);
+//     const races = await res.json();
+//     const paths = races.map((race: Race) => `/race/${race.id}`);
+//     // console.log(paths);
 
-    return { paths, fallback: false };
-}
+//     return { paths, fallback: false };
+// }
 
-export async function getStaticProps({ params }) {
-    const id = params.id;
-    const res = await fetch(`http://${process.env.DEPLOY_URL}/api/races/${id}`);
-    const racedata = await res.json();
+// export async function getStaticProps({ params }) {
+//     const id = params.id;
+//     const res = await fetch(`http://${process.env.DEPLOY_URL}/api/races/${id}`, {
+//         headers: {
+//             "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({
+//             raceId: id,
 
-    return { props: { racedata } };
-}
+//         })
+//     });
+//     const racedata = await res.json();
 
-const RacePage = ({ racedata }: { racedata: Race }) => {
+//     return { props: { racedata } };
+// }
+
+// TODO: ServerSideProps内でのAPIコールを避ける
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    console.log("serversideprops");
+    const { id: raceId } = context.query;
+
+    if (Array.isArray(raceId) || !raceId) {
+        context.res.statusCode = 404;
+        return {
+            props: {
+                error: "OOPS",
+            },
+        };
+    }
+
+    const session = await unstable_getServerSession(
+        context.req,
+        context.res,
+        authOptions
+    );
+
+    const userId = session?.user?.id;
+
+    const res_race = await getRaces(raceId, userId ? userId : undefined);
+
+    return { props: { res_race } };
+};
+
+const RacePage = ({ res_race: racedata }: { res_race: Race }) => {
+    // console.log(result);
+    // const racedata = result.racedata;
+    // const session = result.session;
+
     const collator = useCollator({ numeric: true });
     async function load({ signal }) {
         return {
@@ -71,8 +117,6 @@ const RacePage = ({ racedata }: { racedata: Race }) => {
         };
     }
     const list = useAsyncList({ load, sort });
-
-    const _date = racedata.startDate;
 
     return (
         <Container
@@ -227,8 +271,13 @@ const RacePage = ({ racedata }: { racedata: Race }) => {
                                     return (
                                         <Table.Cell>
                                             <TableMarkItem
+                                                race={racedata}
                                                 horse={item.horse}
-                                                jockey={item.jockey}
+                                                mark={
+                                                    item.TableMark[0]
+                                                        ? item.TableMark[0].mark
+                                                        : "--"
+                                                }
                                             />
                                         </Table.Cell>
                                     );

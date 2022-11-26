@@ -73,21 +73,24 @@ model Race {
 }
 
 model Race_DetailHorse {
-  race     Race   @relation(fields: [raceId], references: [id])
-  raceId   String
-  waku     Int    @db.UnsignedTinyInt
-  umaban   Int    @db.UnsignedTinyInt
-  horse    Horse  @relation(fields: [horseId], references: [id])
-  horseId  String
-  weight   Int    @db.UnsignedSmallInt
-  jockey   Jockey @relation(fields: [jockeyId], references: [id])
-  jockeyId String
+  race      Race        @relation(fields: [raceId], references: [id])
+  raceId    String
+  waku      Int         @db.UnsignedTinyInt
+  umaban    Int         @db.UnsignedTinyInt
+  horse     Horse       @relation(fields: [horseId], references: [id])
+  horseId   String
+  weight    Int         @db.UnsignedSmallInt
+  jockey    Jockey      @relation(fields: [jockeyId], references: [id])
+  jockeyId  String
   // TODO: きゅうしゃ
-  odds     Float  @db.Double
-  favorite Int    @db.UnsignedTinyInt
+  odds      Float       @db.Double
+  favorite  Int         @db.UnsignedTinyInt
+  TableMark TableMark[]
 
   @@id([raceId, horseId])
 }
+
+// Account
 
 model Account {
   id                 String  @id @default(cuid())
@@ -124,8 +127,22 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-  accounts      Account[]
-  sessions      Session[]
+
+  accounts   Account[]
+  sessions   Session[]
+  tableMarks TableMark[]
+}
+
+model TableMark {
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  mark        String           @db.TinyText
+  horseDetail Race_DetailHorse @relation(fields: [raceId, horseId], references: [raceId, horseId])
+  raceId      String
+  horseId     String
+
+  @@id([raceId, horseId, userId])
 }
 
 model VerificationToken {

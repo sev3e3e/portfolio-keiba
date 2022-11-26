@@ -4,6 +4,7 @@ import type { AppProps } from "next/app";
 import { Button, Link, Navbar, NextUIProvider, Text } from "@nextui-org/react";
 import { SessionContextValue, SessionProvider } from "next-auth/react";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { Session } from "next-auth";
 
 export const NavBarUserItem = () => {
     const { data: session, status } = useSession();
@@ -26,8 +27,7 @@ export const NavBarUserItem = () => {
 export default function App({
     Component,
     pageProps: { session, ...pageProps },
-}: AppProps) {
-    console.log(session);
+}: AppProps<{ session: Session }>) {
     return (
         <SessionProvider session={session}>
             <NextUIProvider>
