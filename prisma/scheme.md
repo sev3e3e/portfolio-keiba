@@ -45,6 +45,7 @@ erDiagram
     String weather  
     String baba  
     String course  
+    Int round  
     String requirement  
     Int horseCount  
     Int winPrize  

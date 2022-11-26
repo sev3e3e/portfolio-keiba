@@ -55,13 +55,14 @@ model JockeyRecord {
 
 model Race {
   id               String             @id
-  startDate        DateTime           @db.Date
+  startDate        DateTime           @db.DateTime
   name             String
   groundKind       String
   distance         Int                @db.UnsignedSmallInt
   weather          String
   baba             String
   course           String
+  round            Int                @db.UnsignedTinyInt
   requirement      String
   horseCount       Int                @db.UnsignedTinyInt
   winPrize         Int                @db.UnsignedSmallInt
