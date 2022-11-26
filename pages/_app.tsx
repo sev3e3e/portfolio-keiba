@@ -54,7 +54,7 @@ export const NavBarUserItem = () => {
                     {isSelectedShowUser ? (
                         <Row align="center">
                             <Container gap={0.2}>
-                                <Avatar src={session!.user!.image}></Avatar>
+                                <Avatar src={session!.user!.image!}></Avatar>
                             </Container>
 
                             <Col>
