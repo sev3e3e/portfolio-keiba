@@ -5,7 +5,6 @@ export const getRaces = async (
     raceId: string,
     userId?: string
 ): Promise<Race> => {
-    console.log("getrace called");
     if (userId) {
         const races = await prisma.race.findUnique({
             where: {

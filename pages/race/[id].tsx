@@ -8,59 +8,22 @@ import {
     useAsyncList,
     useCollator,
     Text,
-    Col,
     Row,
     Badge,
     Spacer,
-    User,
-    Card,
-    Modal,
-    Button,
 } from "@nextui-org/react";
-import { useEffect } from "react";
-import { HorseRecord, Race, Race_DetailHorse } from "@prisma/client";
+import { Race, Race_DetailHorse } from "@prisma/client";
 import { BsCloudFill } from "react-icons/bs";
 import { HorseItem } from "../../components/table/horseItem";
-import { HorseResult } from "../../components/table/horseResult";
-import { compareAsc, format } from "date-fns";
+import { format } from "date-fns";
 import React from "react";
 import { TableMarkItem } from "../../components/table/mark";
 import { GetServerSideProps } from "next";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth/next";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import { getMarks } from "../../database/queries/marks";
 import { getRaces } from "../../database/queries/races";
 
-// export async function getStaticPaths() {
-//     const res = await fetch(`http://${process.env.DEPLOY_URL}/api/races`);
-//     const races = await res.json();
-//     const paths = races.map((race: Race) => `/race/${race.id}`);
-//     // console.log(paths);
-
-//     return { paths, fallback: false };
-// }
-
-// export async function getStaticProps({ params }) {
-//     const id = params.id;
-//     const res = await fetch(`http://${process.env.DEPLOY_URL}/api/races/${id}`, {
-//         headers: {
-//             "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({
-//             raceId: id,
-
-//         })
-//     });
-//     const racedata = await res.json();
-
-//     return { props: { racedata } };
-// }
-
-// TODO: ServerSideProps内でのAPIコールを避ける
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    console.log("serversideprops");
     const { id: raceId } = context.query;
 
     if (Array.isArray(raceId) || !raceId) {
@@ -86,10 +49,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 const RacePage = ({ res_race: racedata }: { res_race: Race }) => {
-    // console.log(result);
-    // const racedata = result.racedata;
-    // const session = result.session;
-
     const collator = useCollator({ numeric: true });
     async function load({ signal }) {
         return {
