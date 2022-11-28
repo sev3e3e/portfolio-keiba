@@ -260,7 +260,8 @@ const RacePage = ({ res_race: racedata }: { res_race: Race }) => {
                                                 race={racedata}
                                                 horse={item.horse}
                                                 mark={
-                                                    item.TableMark
+                                                    item.TableMark &&
+                                                    item.TableMark.length > 0
                                                         ? item.TableMark[0].mark
                                                         : "--"
                                                 }

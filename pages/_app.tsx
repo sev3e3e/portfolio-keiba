@@ -23,7 +23,7 @@ import { useState } from "react";
 export const NavBarUserItem = () => {
     const { data: session, status } = useSession();
     const [isSelectedShowUser, SetIsSelectedShowUser] = useState(false);
-    if (status != "authenticated") {
+    if (status != "authenticated" || !session) {
         return (
             <Button auto flat as={Link} href="/api/auth/signin/google">
                 Sign in
@@ -31,56 +31,16 @@ export const NavBarUserItem = () => {
         );
     } else {
         return (
-            <>
-                <Text>Logged in as</Text>
-                <Spacer x={0.3} />
-                <Tooltip
-                    content={
-                        <>
-                            <Container>
-                                <Checkbox
-                                    isSelected={isSelectedShowUser}
-                                    onChange={(isSelected) => {
-                                        SetIsSelectedShowUser(isSelected);
-                                    }}
-                                >
-                                    User名を表示する
-                                </Checkbox>
-                            </Container>
-                        </>
-                    }
-                    placement={"bottom"}
-                >
-                    {isSelectedShowUser ? (
-                        <Row align="center">
-                            <Container gap={0.2}>
-                                <Avatar src={session!.user!.image!}></Avatar>
-                            </Container>
-
-                            <Col>
-                                <Text>{session?.user?.name}</Text>
-                                <Text size={"small"} color={"$gray800"}>
-                                    {session?.user?.id}
-                                </Text>
-                            </Col>
-                        </Row>
-                    ) : (
-                        "*********"
-                    )}
-                </Tooltip>
-
-                <Spacer x={0.45} />
-                <Button
-                    color={"error"}
-                    auto
-                    shadow
-                    onPress={() => {
-                        signOut();
-                    }}
-                >
-                    Sign out
-                </Button>
-            </>
+            <Button
+                color={"error"}
+                auto
+                shadow
+                onPress={() => {
+                    signOut();
+                }}
+            >
+                Sign out
+            </Button>
         );
     }
 };
