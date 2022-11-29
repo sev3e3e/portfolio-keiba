@@ -23,7 +23,6 @@ import { GetServerSideProps } from "next";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth/next";
 import { getRace } from "../../database/queries/race";
-import { useMediaQuery } from "../../hooks/useMediaQuery";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { id: raceId } = context.query;
@@ -51,7 +50,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 const RacePage = ({ res_race: racedata }: { res_race: Race }) => {
-    const isMd = useMediaQuery(960);
     const router = useRouter();
     const collator = useCollator({ numeric: true });
     async function load({ signal }) {
@@ -84,7 +82,7 @@ const RacePage = ({ res_race: racedata }: { res_race: Race }) => {
     return (
         <Container
             css={{
-                p: "$10",
+                padding: "$10",
             }}
         >
             <Button
@@ -98,54 +96,46 @@ const RacePage = ({ res_race: racedata }: { res_race: Race }) => {
             >
                 レース一覧へ戻る
             </Button>
-            <Spacer />
-            <Grid.Container justify="flex-start" alignItems="center" gap={0.6}>
-                <Grid>
-                    <Avatar
-                        css={{
-                            size: isMd ? "$18" : "$20",
-                            fontSize: isMd ? "$4xl" : "$5xl",
-                        }}
-                        text={`${racedata.round}R`}
-                        size={isMd ? "$4xl" : "$5xl"}
-                        squared
-                        color={"primary"}
-                        textColor="white"
-                    />
-                </Grid>
-                <Grid>
-                    <Text
-                        h1
-                        size={isMd ? "$4xl" : "$5xl"}
-                        css={{
-                            whiteSpace: "nowrap",
-                        }}
-                    >
-                        {racedata.name}
-                    </Text>
-                </Grid>
-                <Grid>
-                    <Badge size={isMd ? "lg" : "xl"}>
-                        {racedata.groundKind}
-                    </Badge>
-                    <Badge size={isMd ? "lg" : "xl"}>
-                        {racedata.distance}m
-                    </Badge>
-                    <Badge size={isMd ? "lg" : "xl"}>左回り</Badge>
-                    <Badge size={isMd ? "lg" : "xl"}>
-                        {racedata.requirement}
-                    </Badge>
-                </Grid>
-            </Grid.Container>
             <Row align="center">
-                <Grid.Container alignItems="center" gap={1}>
+                <Avatar
+                    css={{ size: "$20", fontSize: "$5xl" }}
+                    text={`${racedata.round}R`}
+                    size={"$5xl"}
+                    squared
+                    color={"primary"}
+                    textColor="white"
+                />
+                <Spacer x={0.4} />
+                <Grid.Container alignItems="center">
                     <Grid>
+                        <Row align="center">
+                            <Text
+                                h1
+                                css={{
+                                    whiteSpace: "nowrap",
+                                }}
+                            >
+                                {racedata.name}
+                            </Text>
+                            <Container
+                                justify="center"
+                                alignItems="center"
+                                alignContent="center"
+                            >
+                                <Badge size={"xl"}>{racedata.groundKind}</Badge>
+                                <Badge size={"xl"}>{racedata.distance}m</Badge>
+                                <Badge size={"xl"}>左回り</Badge>
+                                <Badge size={"xl"}>
+                                    {racedata.requirement}
+                                </Badge>
+                            </Container>
+                        </Row>
                         <Row
                             css={{
                                 alignItems: "flex-end",
                             }}
                         >
-                            <Text size={isMd ? "$xl" : "x-large"}>
+                            <Text size={"$2xl"}>
                                 {format(
                                     new Date(racedata.startDate),
                                     "MM月dd日 hh時mm分"
@@ -153,53 +143,38 @@ const RacePage = ({ res_race: racedata }: { res_race: Race }) => {
                             </Text>
                             <Text
                                 css={{
-                                    ml: "$2",
                                     m: "$1",
+                                    ml: "$3",
                                 }}
-                                size={isMd ? "$xs" : "$sm"}
+                                size={"$sm"}
                             >
                                 発走
                             </Text>
-                        </Row>
-                    </Grid>
-                    <Grid>
-                        <Row
-                            css={{
-                                alignItems: "flex-end",
-                            }}
-                        >
-                            <Text size={isMd ? "$xl" : "x-large"}>良</Text>
-                            <Text
-                                css={{
-                                    ml: "$2",
-                                    m: "$1",
-                                }}
-                                size={isMd ? "$xs" : "$sm"}
-                            >
-                                馬場
-                            </Text>
-                        </Row>
-                    </Grid>
-                    <Grid>
-                        <Row
-                            css={{
-                                alignItems: "flex-end",
-                            }}
-                        >
-                            <Text size={isMd ? "$xl" : "x-large"}>
-                                {racedata.course}
-                            </Text>
+
+                            <Spacer />
+                            <Text size={"x-large"}>{racedata.course}</Text>
                             <Text
                                 css={{
                                     m: "$1",
-                                    ml: "$2",
+                                    ml: "$3",
                                 }}
-                                size={isMd ? "$xs" : "$sm"}
+                                size={"$sm"}
                             >
                                 競馬場
                             </Text>
-                            <Spacer x={0.4} />
-                            <BsCloudFill size={isMd ? "2em" : "2.5em"} />
+                            <Spacer />
+                            <Text size={"x-large"}>良</Text>
+                            <Text
+                                css={{
+                                    m: "$1",
+                                    ml: "$3",
+                                }}
+                                size={"$sm"}
+                            >
+                                馬場
+                            </Text>
+                            <Spacer />
+                            <BsCloudFill size={"2.5em"} />
                         </Row>
                     </Grid>
                 </Grid.Container>
