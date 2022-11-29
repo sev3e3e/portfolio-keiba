@@ -18,10 +18,11 @@ import { useEffect } from "react";
 import { BsCloudFill } from "react-icons/bs";
 import styles from "../styles/Home.module.css";
 import { compareAsc, format } from "date-fns";
+import { getRaces } from "../database/queries/races";
 
 export async function getServerSideProps() {
-    const res = await fetch(`http://${process.env.DEPLOY_URL}/api/races/today`);
-    const racedata = await res.json();
+    const data = await getRaces();
+    const racedata = JSON.parse(JSON.stringify(data));
 
     return { props: { racedata } };
 }
@@ -74,7 +75,7 @@ export default function Home({ racedata }: { racedata: Race[] }) {
                     <Grid sm={4}>
                         <RaceContainer course="東京">
                             <Grid.Container alignItems="stretch">
-                                {oosakaRaces
+                                {tokyoRaces
                                     .map((race) => (
                                         <Container
                                             css={{
