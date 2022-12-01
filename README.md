@@ -1,37 +1,40 @@
-このプロジェクトは以下のライブラリ・フレームワークを使用しています。 
-* [Next.js](https://nextjs.org/)
-* [NextUI]()
-* [PlanetScale](https://planetscale.com/)
+# Portfolio-netkeiba
 
-## Getting Started
+このプロジェクトは、自身のポートフォリオのために作成されました。
 
-First, run the development server:
+netkeibaを大いに ~~パク~~ 参考にしています。
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+## Sitemap
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+* Index (レース一覧)
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+![image](https://user-images.githubusercontent.com/105411878/204083160-851c7e74-a943-4f9f-b10f-fd08dee71bd5.png)
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+* /race/[id] (レース詳細画面)
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+![image](https://user-images.githubusercontent.com/105411878/204083193-98311bbc-9a01-4f1e-95c9-243cc08730b3.png)
 
-## Learn More
+## Selling points (アピールポイント)
 
-To learn more about Next.js, take a look at the following resources:
+* バックエンド ~ フロントエンドまで全てTypeScript
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+![image](https://user-images.githubusercontent.com/105411878/204084921-a948b27b-7d05-4341-a49a-c1d464e2caa0.png)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+* ユーザーのログイン機構有 (レース詳細画面で変更した印を自動保存/自動読み込み)
 
-## Deploy on Vercel
+https://user-images.githubusercontent.com/105411878/204088511-49931d24-6645-4c9f-aacf-bb2c174b98be.mp4
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+* Nextjs + PlanetScale(w/ Prisma)のモダンっぽい構成
+* DBのCreate, Read, Update (Deleteはアプリの内容的に無し)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Tech-Stack lists
+
+* [TypeScript](https://www.typescriptlang.org/)
+* [Next.js](https://nextjs.org/) - React framework
+* [NextUI](https://nextui.org/) - Nextjs GUI library
+* [NextAuth](https://next-auth.js.org/) - Nextjs Authorization library
+* [PlanetScale](https://planetscale.com/) - serverless database
+* [Prisma](https://www.prisma.io/) - ORM
+  
+

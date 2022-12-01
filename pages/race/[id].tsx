@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import {
-    Avatar,
     Container,
     Grid,
     SortDescriptor,
@@ -8,44 +7,82 @@ import {
     useAsyncList,
     useCollator,
     Text,
-    Col,
     Row,
     Badge,
     Spacer,
-    User,
-    Card,
-    Modal,
     Button,
 } from "@nextui-org/react";
-import { useEffect } from "react";
-import { HorseRecord, Race, Race_DetailHorse } from "@prisma/client";
-import { BsCloudFill } from "react-icons/bs";
+import {
+    Horse,
+    HorseRecord,
+    Jockey,
+    JockeyRecord,
+    Race,
+    Race_DetailHorse,
+    TableMark,
+} from "@prisma/client";
+import { BsArrowLeft, BsCloudFill } from "react-icons/bs";
 import { HorseItem } from "../../components/table/horseItem";
-import { HorseResult } from "../../components/table/horseResult";
-import { compareAsc, format } from "date-fns";
+import { format } from "date-fns";
 import React from "react";
 import { TableMarkItem } from "../../components/table/mark";
+import { GetServerSideProps } from "next";
+import { authOptions } from "../api/auth/[...nextauth]";
+import { unstable_getServerSession } from "next-auth/next";
+import { getRace } from "../../database/queries/race";
+import { useMediaQuery } from "react-responsive";
+import { JockeyItem } from "../../components/table/jockeyItem";
 
-export async function getStaticPaths() {
-    const res = await fetch(`http://${process.env.DEPLOY_URL}/api/races`);
-    const races = await res.json();
-    const paths = races.map((race: Race) => `/race/${race.id}`);
-    // console.log(paths);
+type RaceExtended = Race & {
+    Race_DetailHorse: RaceDetailHorseExtended;
+};
 
-    return { paths, fallback: false };
-}
+type RaceDetailHorseExtended = Race_DetailHorse & {
+    horse: HorseExtend;
+    jockey: JockeyExtend;
+    TableMark: TableMark[];
+};
 
-export async function getStaticProps({ params }) {
-    const id = params.id;
-    const res = await fetch(`http://${process.env.DEPLOY_URL}/api/races/${id}`);
-    const racedata = await res.json();
+type JockeyExtend = Jockey & {
+    JockeyRecord: JockeyRecord[];
+};
 
-    return { props: { racedata } };
-}
+type HorseExtend = Horse & {
+    HorseRecord: HorseRecord[];
+};
 
-const RacePage = ({ racedata }: { racedata: Race }) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { id: raceId } = context.query;
+
+    if (Array.isArray(raceId) || !raceId) {
+        context.res.statusCode = 404;
+        return {
+            props: {
+                error: "OOPS",
+            },
+        };
+    }
+
+    const session = await unstable_getServerSession(
+        context.req,
+        context.res,
+        authOptions
+    );
+
+    const userId = session?.user?.id;
+
+    const res_race = await getRace(raceId, userId ? userId : undefined);
+
+    return { props: { res_race } };
+};
+
+const RacePage = ({ res_race: racedata }: { res_race: RaceExtended }) => {
+    const isMd = useMediaQuery({
+        query: "(max-width: 960px)",
+    });
+    const router = useRouter();
     const collator = useCollator({ numeric: true });
-    async function load({ signal }) {
+    async function load({ signal }: { signal: any }): Promise<any> {
         return {
             items: racedata.Race_DetailHorse,
         };
@@ -54,13 +91,15 @@ const RacePage = ({ racedata }: { racedata: Race }) => {
         items,
         sortDescriptor,
     }: {
-        items: Race_DetailHorse[];
+        items: RaceDetailHorseExtended[];
         sortDescriptor: SortDescriptor;
     }) {
         const l = items.sort((a, b) => {
-            let first = a[sortDescriptor.column];
-            let second = b[sortDescriptor.column];
-            let cmp = collator.compare(first, second);
+            let first =
+                a[sortDescriptor.column! as keyof RaceDetailHorseExtended];
+            let second =
+                b[sortDescriptor.column! as keyof RaceDetailHorseExtended];
+            let cmp = collator.compare(first.toString(), second.toString());
             if (sortDescriptor.direction === "descending") {
                 cmp *= -1;
             }
@@ -72,84 +111,128 @@ const RacePage = ({ racedata }: { racedata: Race }) => {
     }
     const list = useAsyncList({ load, sort });
 
-    const _date = racedata.startDate;
-
     return (
         <Container
             css={{
-                padding: "$5",
+                p: "$10",
             }}
         >
-            <Grid.Container alignItems="center">
+            <Button
+                icon={<BsArrowLeft />}
+                bordered
+                auto
+                size={"lg"}
+                onPress={() => {
+                    router.back();
+                }}
+            >
+                レース一覧へ戻る
+            </Button>
+            <Spacer />
+            <Grid.Container justify="flex-start" alignItems="center" gap={0.6}>
                 <Grid>
-                    <Row align="center">
+                    <Badge isSquared size={"xl"} color={"primary"}>
                         <Text
-                            h1
+                            size={"$2xl"}
+                            color="white"
                             css={{
-                                whiteSpace: "nowrap",
+                                mx: "$3",
                             }}
-                        >
-                            {racedata.name}
-                        </Text>
-                        <Container
-                            justify="center"
-                            alignItems="center"
-                            alignContent="center"
-                        >
-                            <Badge size={"xl"}>{racedata.groundKind}</Badge>
-                            <Badge size={"xl"}>{racedata.distance}m</Badge>
-                            <Badge size={"xl"}>左回り</Badge>
-                            <Badge size={"xl"}>{racedata.requirement}</Badge>
-                        </Container>
-                    </Row>
-                    <Row
+                        >{`${racedata.round}R`}</Text>
+                    </Badge>
+                </Grid>
+                <Grid>
+                    <Text
+                        h1
+                        size={isMd ? "$4xl" : "$5xl"}
                         css={{
-                            alignItems: "flex-end",
+                            whiteSpace: "nowrap",
                         }}
                     >
-                        <Text size={"$2xl"}>
-                            {format(
-                                new Date(racedata.startDate),
-                                "MM月dd日 hh時mm分"
-                            )}
-                        </Text>
-                        <Text
-                            css={{
-                                m: "$1",
-                                ml: "$3",
-                            }}
-                            size={"$sm"}
-                        >
-                            発走
-                        </Text>
-
-                        <Spacer />
-                        <Text size={"x-large"}>{racedata.course}</Text>
-                        <Text
-                            css={{
-                                m: "$1",
-                                ml: "$3",
-                            }}
-                            size={"$sm"}
-                        >
-                            競馬場
-                        </Text>
-                        <Spacer />
-                        <Text size={"x-large"}>良</Text>
-                        <Text
-                            css={{
-                                m: "$1",
-                                ml: "$3",
-                            }}
-                            size={"$sm"}
-                        >
-                            馬場
-                        </Text>
-                        <Spacer />
-                        <BsCloudFill size={"2.5em"} />
-                    </Row>
+                        {racedata.name}
+                    </Text>
+                </Grid>
+                <Grid>
+                    <Badge size={isMd ? "lg" : "xl"}>
+                        {racedata.groundKind}
+                    </Badge>
+                    <Badge size={isMd ? "lg" : "xl"}>
+                        {racedata.distance}m
+                    </Badge>
+                    <Badge size={isMd ? "lg" : "xl"}>左回り</Badge>
+                    <Badge size={isMd ? "lg" : "xl"}>
+                        {racedata.requirement}
+                    </Badge>
                 </Grid>
             </Grid.Container>
+            <Row align="center">
+                <Grid.Container alignItems="center" gap={1}>
+                    <Grid>
+                        <Row
+                            css={{
+                                alignItems: "flex-end",
+                            }}
+                        >
+                            <Text size={isMd ? "$xl" : "x-large"}>
+                                {format(
+                                    new Date(racedata.startDate),
+                                    "MM月dd日 hh時mm分"
+                                )}
+                            </Text>
+                            <Text
+                                css={{
+                                    ml: "$2",
+                                    m: "$1",
+                                }}
+                                size={isMd ? "$xs" : "$sm"}
+                            >
+                                発走
+                            </Text>
+                        </Row>
+                    </Grid>
+                    <Grid>
+                        <Row
+                            css={{
+                                alignItems: "flex-end",
+                            }}
+                        >
+                            <Text size={isMd ? "$xl" : "x-large"}>良</Text>
+                            <Text
+                                css={{
+                                    ml: "$2",
+                                    m: "$1",
+                                }}
+                                size={isMd ? "$xs" : "$sm"}
+                            >
+                                馬場
+                            </Text>
+                        </Row>
+                    </Grid>
+                    <Grid>
+                        <Row
+                            css={{
+                                alignItems: "flex-end",
+                            }}
+                        >
+                            <Text size={isMd ? "$xl" : "x-large"}>
+                                {racedata.course}
+                            </Text>
+                            <Text
+                                css={{
+                                    m: "$1",
+                                    ml: "$2",
+                                }}
+                                size={isMd ? "$xs" : "$sm"}
+                            >
+                                競馬場
+                            </Text>
+                            <Spacer x={0.4} />
+                            <BsCloudFill size={isMd ? "2em" : "2.5em"} />
+                        </Row>
+                    </Grid>
+                </Grid.Container>
+            </Row>
+
             <Table
                 aria-label="Example static collection table"
                 css={{ minWidth: "100%", height: "calc($space$14 * 10)" }}
@@ -215,27 +298,35 @@ const RacePage = ({ racedata }: { racedata: Race }) => {
                                 } else if (columnKey == "jockey.name") {
                                     return (
                                         <Table.Cell>
-                                            <HorseItem
-                                                horse={item.jockey}
+                                            <JockeyItem
+                                                jockey={item.horse}
                                                 record={
                                                     item.jockey.JockeyRecord[0]
                                                 }
-                                            ></HorseItem>
+                                            ></JockeyItem>
                                         </Table.Cell>
                                     );
                                 } else if (columnKey == "mark") {
                                     return (
                                         <Table.Cell>
                                             <TableMarkItem
+                                                race={racedata}
                                                 horse={item.horse}
-                                                jockey={item.jockey}
+                                                mark={
+                                                    item.TableMark &&
+                                                    item.TableMark.length > 0
+                                                        ? item.TableMark[0].mark
+                                                        : "--"
+                                                }
                                             />
                                         </Table.Cell>
                                     );
                                 }
-                                return (
-                                    <Table.Cell>{item[columnKey]}</Table.Cell>
-                                );
+
+                                // TODO: Indexの型つけたほうがいいかも
+                                // suppressImplicitAnyIndexErrors
+                                const key = columnKey.toString();
+                                return <Table.Cell>{item[key]}</Table.Cell>;
                             }}
                         </Table.Row>
                     )}

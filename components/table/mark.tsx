@@ -1,28 +1,40 @@
-import { Button, Grid, Modal, Popover, Row, Text } from "@nextui-org/react";
-import { Horse, Jockey } from "@prisma/client";
+import { Button, Popover, Row } from "@nextui-org/react";
+import { Horse, Race } from "@prisma/client";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
 import React from "react";
+import { useState } from "react";
 
 export const TableMarkItem = ({
+    race,
     horse,
-    jockey,
+    mark,
 }: {
+    race: Race;
     horse: Horse;
-    jockey: Jockey;
+    mark: string;
 }) => {
-    const [mark, setMark] = React.useState("--");
+    const { data: session, status } = useSession();
+    const [_mark, setMark] = useState(mark ? mark : "--");
+
     return (
         <>
-            <Popover placement="right">
+            <Popover
+                placement="right"
+                onClose={() => {
+                    _popover_onclose_handler(session, race, horse, _mark);
+                }}
+            >
                 <Popover.Trigger>
                     <Button auto flat>
-                        {mark}
+                        {_mark}
                     </Button>
                 </Popover.Trigger>
                 <Popover.Content>
                     <Row>
                         <Button
                             auto
-                            onClick={() => {
+                            onPress={() => {
                                 setMark("◎");
                             }}
                         >
@@ -30,7 +42,7 @@ export const TableMarkItem = ({
                         </Button>
                         <Button
                             auto
-                            onClick={() => {
+                            onPress={() => {
                                 setMark("○");
                             }}
                         >
@@ -38,7 +50,7 @@ export const TableMarkItem = ({
                         </Button>
                         <Button
                             auto
-                            onClick={() => {
+                            onPress={() => {
                                 setMark("▲");
                             }}
                         >
@@ -46,7 +58,7 @@ export const TableMarkItem = ({
                         </Button>
                         <Button
                             auto
-                            onClick={() => {
+                            onPress={() => {
                                 setMark("△");
                             }}
                         >
@@ -54,7 +66,7 @@ export const TableMarkItem = ({
                         </Button>
                         <Button
                             auto
-                            onClick={() => {
+                            onPress={() => {
                                 setMark("☆");
                             }}
                         >
@@ -62,7 +74,7 @@ export const TableMarkItem = ({
                         </Button>
                         <Button
                             auto
-                            onClick={() => {
+                            onPress={() => {
                                 setMark("✓");
                             }}
                         >
@@ -70,7 +82,7 @@ export const TableMarkItem = ({
                         </Button>
                         <Button
                             auto
-                            onClick={() => {
+                            onPress={() => {
                                 setMark("--");
                             }}
                         >
@@ -82,3 +94,28 @@ export const TableMarkItem = ({
         </>
     );
 };
+
+async function _popover_onclose_handler(
+    session: Session | null,
+    race: Race,
+    horse: Horse,
+    mark: string
+) {
+    if (session != null) {
+        await fetch("/api/races/mark", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                session: session,
+                horse: horse,
+                race: race,
+                mark: mark,
+            }),
+        });
+    } else {
+        // TODO: browser保存
+        console.log("you are not logged in. no mark is saved.");
+    }
+}

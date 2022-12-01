@@ -55,13 +55,14 @@ model JockeyRecord {
 
 model Race {
   id               String             @id
-  startDate        DateTime           @db.Date
+  startDate        DateTime           @db.DateTime
   name             String
   groundKind       String
   distance         Int                @db.UnsignedSmallInt
   weather          String
   baba             String
   course           String
+  round            Int                @db.UnsignedTinyInt
   requirement      String
   horseCount       Int                @db.UnsignedTinyInt
   winPrize         Int                @db.UnsignedSmallInt
@@ -73,18 +74,82 @@ model Race {
 }
 
 model Race_DetailHorse {
-  race     Race   @relation(fields: [raceId], references: [id])
-  raceId   String
-  waku     Int    @db.UnsignedTinyInt
-  umaban   Int    @db.UnsignedTinyInt
-  horse    Horse  @relation(fields: [horseId], references: [id])
-  horseId  String
-  weight   Int    @db.UnsignedSmallInt
-  jockey   Jockey @relation(fields: [jockeyId], references: [id])
-  jockeyId String
+  race      Race        @relation(fields: [raceId], references: [id])
+  raceId    String
+  waku      Int         @db.UnsignedTinyInt
+  umaban    Int         @db.UnsignedTinyInt
+  horse     Horse       @relation(fields: [horseId], references: [id])
+  horseId   String
+  weight    Int         @db.UnsignedSmallInt
+  jockey    Jockey      @relation(fields: [jockeyId], references: [id])
+  jockeyId  String
   // TODO: きゅうしゃ
-  odds     Float  @db.Double
-  favorite Int    @db.UnsignedTinyInt
+  odds      Float       @db.Double
+  favorite  Int         @db.UnsignedTinyInt
+  TableMark TableMark[]
 
   @@id([raceId, horseId])
+}
+
+// Account
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
+  oauth_token_secret String?
+  oauth_token        String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+
+  accounts   Account[]
+  sessions   Session[]
+  tableMarks TableMark[]
+}
+
+model TableMark {
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  mark        String           @db.TinyText
+  horseDetail Race_DetailHorse @relation(fields: [raceId, horseId], references: [raceId, horseId])
+  raceId      String
+  horseId     String
+
+  @@id([raceId, horseId, userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }

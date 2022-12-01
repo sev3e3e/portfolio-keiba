@@ -1,8 +1,10 @@
-import { PrismaClient } from "@prisma/client";
 import { getRandomInt } from "../../lib/util";
-const prisma = new PrismaClient();
+import { format, addMinutes } from "date-fns";
+
+import { prisma } from "../../database/db";
 
 export const race = async () => {
+    const firstDate = new Date(2022, 11, 26, 0, 0);
     const courses = ["東京", "大阪", "中京"];
     const data = courses.flatMap((course, i) =>
         Array(12)
@@ -10,12 +12,13 @@ export const race = async () => {
             .map((_, ii) => ({
                 id: "testid" + (ii + 1 + i * 12).toString(),
                 name: "テストレース" + (ii + 1 + i * 12).toString(),
-                startDate: new Date(Date.now()),
+                startDate: addMinutes(firstDate, 30 * ii),
                 groundKind: "芝",
                 distance: 1400,
                 weather: "曇",
                 baba: "良",
                 course: course,
+                round: ii + 1,
                 requirement: "2歳 未勝利",
                 horseCount: 15,
                 winPrize: 444,
