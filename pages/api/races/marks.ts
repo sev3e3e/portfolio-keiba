@@ -28,10 +28,17 @@ export default async function handler(
         return;
     }
 
+    const raceId = req.query.raceId;
+
+    if (Array.isArray(raceId) || !raceId) {
+        res.status(400).json({ message: "raceId is invalid." });
+        return;
+    }
+
     if (req.method === "GET") {
         const mark = await prisma.tableMark.findMany({
             where: {
-                raceId: req.query.raceId,
+                raceId: raceId,
                 userId: userId,
             },
             select: {

@@ -30,8 +30,11 @@
     },
     "devDependencies": {
         "@mermaid-js/mermaid-cli": "^9.2.2",
+        "eslint": "8.28.0",
+        "eslint-config-next": "13.0.5",
         "prisma": "^4.6.1",
-        "prisma-erd-generator": "^1.2.4"
+        "prisma-erd-generator": "^1.2.4",
+        "react-responsive": "^9.0.2"
     },
     "ts-node": {
         "compilerOptions": {

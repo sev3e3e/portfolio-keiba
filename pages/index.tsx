@@ -258,6 +258,14 @@ export const RaceButton = ({
     raceLength,
     numberEntry,
     id,
+}: {
+    round: number;
+    name: string;
+    startTime: Date;
+    groundKind: string;
+    raceLength: number;
+    numberEntry: number;
+    id: string;
 }) => {
     const d: Date = new Date(startTime);
     return (

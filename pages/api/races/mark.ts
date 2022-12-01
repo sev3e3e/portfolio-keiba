@@ -7,7 +7,7 @@ import { authOptions } from "../auth/[...nextauth]";
 
 export default async function handler(
     req: NextApiRequest,
-    res: NextApiResponse<TableMark>
+    res: NextApiResponse
 ) {
     if (!(req.method === "GET" || req.method === "POST")) {
         res.status(400);
@@ -31,7 +31,7 @@ export default async function handler(
                 raceId_horseId_userId: {
                     horseId: horse.id,
                     raceId: race.id,
-                    userId: session.user?.id,
+                    userId: session.user!.id!,
                 },
             },
             select: {
@@ -49,14 +49,14 @@ export default async function handler(
                 raceId_horseId_userId: {
                     horseId: horse.id,
                     raceId: race.id,
-                    userId: session.user?.id,
+                    userId: session.user!.id!,
                 },
             },
             update: {
                 mark: mark,
             },
             create: {
-                userId: session.user?.id,
+                userId: session.user!.id!,
                 horseId: horse.id,
                 raceId: race.id,
                 mark: mark,

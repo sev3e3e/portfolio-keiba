@@ -10,7 +10,7 @@ import {
 } from "@nextui-org/react";
 import { Jockey, JockeyRecord } from "@prisma/client";
 
-export const HorseItem = ({
+export const JockeyItem = ({
     jockey,
     record,
 }: {

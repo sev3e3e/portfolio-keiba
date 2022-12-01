@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import {
-    Avatar,
     Container,
     Grid,
     SortDescriptor,
@@ -13,7 +12,15 @@ import {
     Spacer,
     Button,
 } from "@nextui-org/react";
-import { Race, Race_DetailHorse } from "@prisma/client";
+import {
+    Horse,
+    HorseRecord,
+    Jockey,
+    JockeyRecord,
+    Race,
+    Race_DetailHorse,
+    TableMark,
+} from "@prisma/client";
 import { BsArrowLeft, BsCloudFill } from "react-icons/bs";
 import { HorseItem } from "../../components/table/horseItem";
 import { format } from "date-fns";
@@ -23,7 +30,26 @@ import { GetServerSideProps } from "next";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth/next";
 import { getRace } from "../../database/queries/race";
-import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { useMediaQuery } from "react-responsive";
+import { JockeyItem } from "../../components/table/jockeyItem";
+
+type RaceExtended = Race & {
+    Race_DetailHorse: RaceDetailHorseExtended;
+};
+
+type RaceDetailHorseExtended = Race_DetailHorse & {
+    horse: HorseExtend;
+    jockey: JockeyExtend;
+    TableMark: TableMark[];
+};
+
+type JockeyExtend = Jockey & {
+    JockeyRecord: JockeyRecord[];
+};
+
+type HorseExtend = Horse & {
+    HorseRecord: HorseRecord[];
+};
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { id: raceId } = context.query;
@@ -50,11 +76,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return { props: { res_race } };
 };
 
-const RacePage = ({ res_race: racedata }: { res_race: Race }) => {
-    const isMd = useMediaQuery(960);
+const RacePage = ({ res_race: racedata }: { res_race: RaceExtended }) => {
+    const isMd = useMediaQuery({
+        query: "(max-width: 960px)",
+    });
     const router = useRouter();
     const collator = useCollator({ numeric: true });
-    async function load({ signal }) {
+    async function load({ signal }: { signal: any }): Promise<any> {
         return {
             items: racedata.Race_DetailHorse,
         };
@@ -63,13 +91,15 @@ const RacePage = ({ res_race: racedata }: { res_race: Race }) => {
         items,
         sortDescriptor,
     }: {
-        items: Race_DetailHorse[];
+        items: RaceDetailHorseExtended[];
         sortDescriptor: SortDescriptor;
     }) {
         const l = items.sort((a, b) => {
-            let first = a[sortDescriptor.column];
-            let second = b[sortDescriptor.column];
-            let cmp = collator.compare(first, second);
+            let first =
+                a[sortDescriptor.column! as keyof RaceDetailHorseExtended];
+            let second =
+                b[sortDescriptor.column! as keyof RaceDetailHorseExtended];
+            let cmp = collator.compare(first.toString(), second.toString());
             if (sortDescriptor.direction === "descending") {
                 cmp *= -1;
             }
@@ -101,17 +131,15 @@ const RacePage = ({ res_race: racedata }: { res_race: Race }) => {
             <Spacer />
             <Grid.Container justify="flex-start" alignItems="center" gap={0.6}>
                 <Grid>
-                    <Avatar
-                        css={{
-                            size: isMd ? "$18" : "$20",
-                            fontSize: isMd ? "$4xl" : "$5xl",
-                        }}
-                        text={`${racedata.round}R`}
-                        size={isMd ? "$4xl" : "$5xl"}
-                        squared
-                        color={"primary"}
-                        textColor="white"
-                    />
+                    <Badge isSquared size={"xl"} color={"primary"}>
+                        <Text
+                            size={"$2xl"}
+                            color="white"
+                            css={{
+                                mx: "$3",
+                            }}
+                        >{`${racedata.round}R`}</Text>
+                    </Badge>
                 </Grid>
                 <Grid>
                     <Text
@@ -270,12 +298,12 @@ const RacePage = ({ res_race: racedata }: { res_race: Race }) => {
                                 } else if (columnKey == "jockey.name") {
                                     return (
                                         <Table.Cell>
-                                            <HorseItem
-                                                horse={item.jockey}
+                                            <JockeyItem
+                                                jockey={item.horse}
                                                 record={
                                                     item.jockey.JockeyRecord[0]
                                                 }
-                                            ></HorseItem>
+                                            ></JockeyItem>
                                         </Table.Cell>
                                     );
                                 } else if (columnKey == "mark") {
@@ -294,9 +322,11 @@ const RacePage = ({ res_race: racedata }: { res_race: Race }) => {
                                         </Table.Cell>
                                     );
                                 }
-                                return (
-                                    <Table.Cell>{item[columnKey]}</Table.Cell>
-                                );
+
+                                // TODO: Indexの型つけたほうがいいかも
+                                // suppressImplicitAnyIndexErrors
+                                const key = columnKey.toString();
+                                return <Table.Cell>{item[key]}</Table.Cell>;
                             }}
                         </Table.Row>
                     )}

@@ -37,7 +37,7 @@ export default async function handler(
                         },
                         TableMark: {
                             where: {
-                                userId: session.user?.id,
+                                userId: session.user!.id!,
                                 raceId: id,
                             },
 
